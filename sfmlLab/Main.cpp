@@ -52,7 +52,6 @@ public:
         win.draw(Vacancy);
         Vacancy.setPosition(50 + (std::rand() % (50 - 1 + 1)) * 2 * CircleRadius, 50 + (std::rand() % (50 - 1 + 1)) * 2 * CircleRadius);
         win.display();
-
     };
 
     void DrawCircleGrid(RenderWindow& win)
@@ -110,7 +109,7 @@ int main()
     ContextSettings settings;
     settings.antialiasingLevel = 8;
     RenderWindow window(VideoMode(model.CirclesXCount * model.CircleRadius * 2 + model.DrawOffset * 2,
-        model.CirclesYCount * model.CircleRadius * 2 + model.DrawOffset * 2),
+                            model.CirclesYCount * model.CircleRadius * 2 + model.DrawOffset * 2),
         "SFML works!", Style::None, settings);
 
     model.SetCircleColor();
@@ -137,7 +136,6 @@ int main()
             timer = 0.0f;
             model.DrawCircles(window, time);
         }
-
 
         if (Keyboard::isKeyPressed(Keyboard::C))
         {
