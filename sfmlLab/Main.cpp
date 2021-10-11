@@ -4,11 +4,14 @@
 int main()
 {
     Model model;
+    Math math;
     ContextSettings settings;
     settings.antialiasingLevel = 8;
-    RenderWindow window(VideoMode(model.CirclesXCount * model.CircleRadius * 2 + model.DrawOffset * 2,
-                            model.CirclesYCount * model.CircleRadius * 2 + model.DrawOffset * 2),
-        "SFML works!", Style::None, settings);
+
+    float windowXSize = model.CirclesXCount * model.CircleRadius * 2 + model.DrawOffset * 2;
+    float windowYSize = model.CirclesYCount * model.CircleRadius * 2 + model.DrawOffset * 2;
+
+    RenderWindow window(VideoMode(windowXSize + 500, windowYSize), "SFML Lab", Style::Default, settings);
 
     model.SetCircleColor();
 
@@ -29,11 +32,7 @@ int main()
 
         model.DrawCircleGrid(window);
 
-        if (timer >= 3.0f)
-        {
-            timer = 0.0f;
-            model.DrawCircles(window, time);
-        }
+        model.DrawCircles(window, time);
 
         if (Keyboard::isKeyPressed(Keyboard::C))
         {
@@ -53,58 +52,96 @@ void Model::SetCircleColor()
 {
     FirstAtom.setFillColor(clFirstAtom);
     FirstAtom.setRadius(CircleRadius);
+
     SecondAtom.setFillColor(clSecondAtom);
     SecondAtom.setRadius(CircleRadius);
+
     Vacancy.setFillColor(clVacancy);
     Vacancy.setRadius(CircleRadius);
-    Black.setFillColor(Color::Black);
-    Black.setRadius(CircleRadius);
+
     return;
 }
 void Model::DrawCircles(RenderWindow& win, float time)
 {
-    float localX = xCoords * 2 * CircleRadius;
-    float localY = yCoords * 2 * CircleRadius;
+    Math math;
+    for (int j = 0; j < CirclesYCount-1 ; j++)
+        for (int i = 0; i < CirclesXCount - 1; i++)
+        {
+            cout << "i: " << i << "  j: " << j << endl;
+            if (CirclesArray[i][j] == 3)
+            {
+                int right = 0;
+                int up = 0;
 
-    win.draw(Vacancy);
-    Vacancy.setPosition(50 + (std::rand() % (50 - 1 + 1)) * 2 * CircleRadius, 50 + (std::rand() % (50 - 1 + 1)) * 2 * CircleRadius);
-    win.display();
+                if (math.RandBool())
+                    right = 1;
+                else
+                    right = -1;
+
+                if (math.RandBool())
+                    up = 1;
+                else
+                    up = -1;
+                if (!CirclesArray[i + right][j + up]) return;
+                if (i + right < 0 || i + right >= CirclesXCount - 1) return;
+                if (j+up < 0 || j +up >= CirclesYCount-1 ) return;
+
+                if (CirclesArray[i + right][j + up] == 3)
+                    return;
+                else
+                {
+                    cout << "i + right: " << i + right << "  j + up: " << j + up << endl;
+                    CirclesArray[i][j] = CirclesArray[i + right][j + up];
+                    DrawCircleColor(win, i, j, CirclesArray[i + right][j + up]);
+                    CirclesArray[i + right][j + up] = 3;
+                    DrawCircleColor(win, i + right, j + up, 3);
+                }
+            }
+        }
 }
+
 void Model::DrawCircleGrid(RenderWindow& win)
 {
-
+    Math math;
     if (bGridDrawed) return;
 
-    float localX = xCoords * 2 * CircleRadius;
-    float localY = yCoords * 2 * CircleRadius;
+    float localX = 2 * CircleRadius;
+    float localY = 2 * CircleRadius;
 
     for (int j = 0; j < CirclesYCount; j++)
         for (int i = 0; i < CirclesXCount; i++)
         {
+
             if (i < CirclesXCount / 2)
             {
                 win.draw(FirstAtom);
                 FirstAtom.setPosition(localX * i + DrawOffset, localY * j + DrawOffset);
                 win.display();
+                CirclesArray[i][j] = 1;
             }
-            if (i >= CirclesXCount / 2)
+            if (i > CirclesXCount / 2)
             {
                 win.draw(SecondAtom);
                 SecondAtom.setPosition(localX * i + DrawOffset, localY * j + DrawOffset);
                 win.display();
+                CirclesArray[i][j] = 2;
+            }
+            if (i == CirclesXCount / 2)
+            {
+                win.draw(Vacancy);
+                Vacancy.setPosition(localX * i + DrawOffset, localY * j + DrawOffset);
+                win.display();
+                CirclesArray[i][j] = 3;
             }
         }
     bGridDrawed = true;
 
     win.draw(FirstAtom);
-    FirstAtom.setPosition(localX * 100 + DrawOffset, localY * 100 + DrawOffset);
+    CirclesArray[50][50] = 1;
     win.display();
 
     win.draw(SecondAtom);
-    SecondAtom.setPosition(localX * 100 + DrawOffset, localY * 100 + DrawOffset);
-    win.display();
-
-    win.draw(Black);
+    CirclesArray[50][50] = 2;
     win.display();
 
     return;
@@ -115,4 +152,37 @@ void Model::ClearGrid(RenderWindow& win)
 {
     win.clear();
     bGridDrawed = false;
+}
+
+void Model::DrawCircleColor(RenderWindow& win, int x, int y, int num)
+{
+    float xLocal = (DrawOffset) + ((x)*2 * CircleRadius);
+    float yLocal = (DrawOffset) + ((y)*2 * CircleRadius);
+
+    if (num == 1)
+    {
+        win.draw(FirstAtom);
+        FirstAtom.setPosition(xLocal, yLocal);
+    }
+    if (num == 2)
+    {
+        win.draw(SecondAtom);
+        SecondAtom.setPosition(xLocal, yLocal);
+    }
+    if (num == 3)
+    {
+        win.draw(Vacancy);
+        Vacancy.setPosition(xLocal, yLocal);
+    }
+
+    win.display();
+}
+
+bool Math::RandBool()
+{
+    float r = (rand() % 100);
+    if (r >= 50)
+        return true;
+    else
+        return false;
 }

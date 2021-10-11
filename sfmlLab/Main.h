@@ -9,8 +9,11 @@ using namespace std;
 const class Model
 {
 public:
-    int CirclesXCount = 50;
-    int CirclesYCount = 50;
+    const int CirclesXCount = 25;
+    const int CirclesYCount = 25;
+
+    int CirclesArray[25][25];
+
 
     CircleShape FirstAtom;
     CircleShape SecondAtom;
@@ -21,8 +24,8 @@ public:
     Color clSecondAtom = Color(0, 255, 0);
     Color clVacancy = Color(255, 255, 255);
 
-    float CircleRadius = 10.0f;
-    float DrawOffset = 50.0f;
+    float CircleRadius = 14.0f;
+    float DrawOffset = 35.0f;
 
     int xCoords = 1;
     int yCoords = 1;
@@ -30,12 +33,16 @@ public:
     bool bGridDrawed = false;
 
     void SetCircleColor();
-
     void DrawCircles(RenderWindow& win, float time);
-
     void DrawCircleGrid(RenderWindow& win);
-
     void setting();
-
     void ClearGrid(RenderWindow& win);
+    void DrawCircleColor(RenderWindow& win,int x, int y, int num);
+};
+
+
+const class Math
+{
+public:
+    bool RandBool();
 };
