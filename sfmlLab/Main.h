@@ -15,6 +15,7 @@ public:
     int CirclesArray[25][25];
 
 
+    pair<int, int> VacancyArray[25];
     CircleShape FirstAtom;
     CircleShape SecondAtom;
     CircleShape Vacancy;
@@ -37,9 +38,8 @@ public:
     void DrawCircleGrid(RenderWindow& win);
     void setting();
     void ClearGrid(RenderWindow& win);
-    void DrawCircleColor(RenderWindow& win,int x, int y, int num);
+    void DrawCircleColor(RenderWindow& win, int x, int y, int num);
 };
-
 
 const class Math
 {

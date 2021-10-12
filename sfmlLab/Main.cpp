@@ -34,6 +34,9 @@ int main()
 
         model.DrawCircles(window, time);
 
+
+
+
         if (Keyboard::isKeyPressed(Keyboard::C))
         {
             model.ClearGrid(window);
@@ -64,40 +67,43 @@ void Model::SetCircleColor()
 void Model::DrawCircles(RenderWindow& win, float time)
 {
     Math math;
-    for (int j = 0; j < CirclesYCount-1 ; j++)
-        for (int i = 0; i < CirclesXCount - 1; i++)
+
+
+
+    for (int i = 0; i < CirclesYCount; i++)
+    {
+        int x = VacancyArray[i].first;
+        int y = VacancyArray[i].second;
+
+        int right = 0;
+        int up = 0;
+
+        if (math.RandBool())
+            right = 1;
+        else
+            right = -1;
+
+        if (math.RandBool())
+            up = 1;
+        else
+            up = -1;
+        if (!CirclesArray[x + right][y + up]) return;
+        if (x + right < 0 || x + right >= CirclesXCount - 1) return;
+        if (y + up < 0 || y + up >= CirclesYCount - 1) return;
+
+        if (CirclesArray[x + right][y + up] == 3)
+            return;
+        else
         {
-            cout << "i: " << i << "  j: " << j << endl;
-            if (CirclesArray[i][j] == 3)
-            {
-                int right = 0;
-                int up = 0;
-
-                if (math.RandBool())
-                    right = 1;
-                else
-                    right = -1;
-
-                if (math.RandBool())
-                    up = 1;
-                else
-                    up = -1;
-                if (!CirclesArray[i + right][j + up]) return;
-                if (i + right < 0 || i + right >= CirclesXCount - 1) return;
-                if (j+up < 0 || j +up >= CirclesYCount-1 ) return;
-
-                if (CirclesArray[i + right][j + up] == 3)
-                    return;
-                else
-                {
-                    cout << "i + right: " << i + right << "  j + up: " << j + up << endl;
-                    CirclesArray[i][j] = CirclesArray[i + right][j + up];
-                    DrawCircleColor(win, i, j, CirclesArray[i + right][j + up]);
-                    CirclesArray[i + right][j + up] = 3;
-                    DrawCircleColor(win, i + right, j + up, 3);
-                }
-            }
+            cout << "x + right: " << x + right << "  y + up: " << y + up << endl;
+            CirclesArray[x][y] = CirclesArray[x + right][y + up];
+            DrawCircleColor(win, x, y, CirclesArray[x + right][y + up]);
+            CirclesArray[x + right][y + up] = 3;
+            DrawCircleColor(win, x + right, y + up, 3);
+            VacancyArray[i].first = x + right;
+            VacancyArray[i].second = y + up;
         }
+    }
 }
 
 void Model::DrawCircleGrid(RenderWindow& win)
@@ -114,35 +120,29 @@ void Model::DrawCircleGrid(RenderWindow& win)
 
             if (i < CirclesXCount / 2)
             {
-                win.draw(FirstAtom);
                 FirstAtom.setPosition(localX * i + DrawOffset, localY * j + DrawOffset);
+                win.draw(FirstAtom);
                 win.display();
                 CirclesArray[i][j] = 1;
             }
             if (i > CirclesXCount / 2)
             {
-                win.draw(SecondAtom);
                 SecondAtom.setPosition(localX * i + DrawOffset, localY * j + DrawOffset);
+                win.draw(SecondAtom);
                 win.display();
                 CirclesArray[i][j] = 2;
             }
             if (i == CirclesXCount / 2)
             {
-                win.draw(Vacancy);
                 Vacancy.setPosition(localX * i + DrawOffset, localY * j + DrawOffset);
+                win.draw(Vacancy);
                 win.display();
                 CirclesArray[i][j] = 3;
+                VacancyArray[j].first = i;
+                VacancyArray[j].second = j;
             }
         }
     bGridDrawed = true;
-
-    win.draw(FirstAtom);
-    CirclesArray[50][50] = 1;
-    win.display();
-
-    win.draw(SecondAtom);
-    CirclesArray[50][50] = 2;
-    win.display();
 
     return;
 }
