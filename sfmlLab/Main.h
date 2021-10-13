@@ -1,17 +1,21 @@
 #pragma once
 
+#include <SFML/Window.hpp>
+#include <SFML/OpenGL.hpp>
 #include "SFML/Graphics.hpp"
 #include "iostream"
 
 using namespace sf;
 using namespace std;
 
+
+
 const class Model
 {
 public:
     const int CirclesXCount = 25;
     const int CirclesYCount = 25;
-
+    float timer = 0;
     int CirclesArray[25][25];
 
 
@@ -25,7 +29,7 @@ public:
     Color clSecondAtom = Color(0, 255, 0);
     Color clVacancy = Color(255, 255, 255);
 
-    float CircleRadius = 14.0f;
+    float CircleRadius = 8.0f;
     float DrawOffset = 35.0f;
 
     int xCoords = 1;
@@ -39,6 +43,12 @@ public:
     void setting();
     void ClearGrid(RenderWindow& win);
     void DrawCircleColor(RenderWindow& win, int x, int y, int num);
+
+    public:
+    RectangleShape GraficField;
+    void SetVars();
+    void DrawGrafic(RenderWindow& win);
+
 };
 
 const class Math

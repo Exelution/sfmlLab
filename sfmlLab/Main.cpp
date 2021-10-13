@@ -11,7 +11,7 @@ int main()
     float windowXSize = model.CirclesXCount * model.CircleRadius * 2 + model.DrawOffset * 2;
     float windowYSize = model.CirclesYCount * model.CircleRadius * 2 + model.DrawOffset * 2;
 
-    RenderWindow window(VideoMode(windowXSize + 500, windowYSize), "SFML Lab", Style::Default, settings);
+    RenderWindow window(VideoMode(windowXSize + 500, windowYSize + 400), "SFML Lab", Style::Default, settings);
 
     model.SetCircleColor();
 
@@ -32,10 +32,12 @@ int main()
 
         model.DrawCircleGrid(window);
 
-        model.DrawCircles(window, time);
-
-
-
+        if (timer > 100.0f)
+        {
+            timer = 0;
+            model.DrawCircles(window, time);
+            model.DrawGrafic(window);
+        }
 
         if (Keyboard::isKeyPressed(Keyboard::C))
         {
@@ -68,8 +70,6 @@ void Model::DrawCircles(RenderWindow& win, float time)
 {
     Math math;
 
-
-
     for (int i = 0; i < CirclesYCount; i++)
     {
         int x = VacancyArray[i].first;
@@ -95,7 +95,6 @@ void Model::DrawCircles(RenderWindow& win, float time)
             return;
         else
         {
-            cout << "x + right: " << x + right << "  y + up: " << y + up << endl;
             CirclesArray[x][y] = CirclesArray[x + right][y + up];
             DrawCircleColor(win, x, y, CirclesArray[x + right][y + up]);
             CirclesArray[x + right][y + up] = 3;
@@ -185,4 +184,65 @@ bool Math::RandBool()
         return true;
     else
         return false;
+}
+
+void Model::SetVars() {}
+
+void Model::DrawGrafic(RenderWindow& win)
+{
+
+    VertexArray graficVertex(LineStrip, 25);
+    VertexArray graficVertexB(LineStrip, 25);
+
+    int yPoint = CirclesYCount * CircleRadius * 2 + DrawOffset * 2 + CirclesYCount * CircleRadius;
+    int xPoint = DrawOffset;
+
+    int width = CirclesXCount * CircleRadius * 2;
+    int heigth = CirclesYCount * CircleRadius;
+
+    GraficField.setFillColor(Color::Black);
+    GraficField.setPosition(xPoint - 5, yPoint - CirclesYCount * CircleRadius - 5);
+    Vector2f GraficSize(width + 5, 30 + heigth);
+    GraficField.setSize(GraficSize);
+    win.draw(GraficField);
+    win.display();
+
+    int GraficStepSize = CircleRadius * 2;
+
+    for (int x = 0; x < CirclesXCount; x++)
+    {
+        int count1Atom = 0;
+        int count2Atom = 0;
+
+        for (int y = 0; y < CirclesYCount; y++)
+        {
+            if (CirclesArray[x][y] == 1) count1Atom++;
+            if (CirclesArray[x][y] == 2) count2Atom++;
+        };
+
+        Vector2f vector;
+        Vector2f vectorB;
+
+        int vx = x * GraficStepSize + xPoint;
+        int vy = yPoint - (count1Atom * heigth / CirclesYCount);
+
+        int vxB = x * GraficStepSize + xPoint;
+        int vyB = yPoint - (count2Atom * heigth / CirclesYCount);
+
+        vector = Vector2f(vx, vy);
+        vectorB = Vector2f(vxB, vyB);
+        graficVertex[x].position = vector;
+        graficVertexB[x].position = vectorB;
+
+        graficVertex[x].color = clFirstAtom;
+        graficVertexB[x].color = clSecondAtom;
+
+
+        cout << "1atom   " << count1Atom / CirclesYCount << "  vy " << vy << endl;
+    };
+
+    win.draw(graficVertex);
+    win.draw(graficVertexB);
+    win.display();
+
 }
