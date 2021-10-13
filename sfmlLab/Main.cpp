@@ -7,11 +7,12 @@ int main()
     Math math;
     ContextSettings settings;
     settings.antialiasingLevel = 8;
-
+    int scale = 300;
     float windowXSize = model.CirclesXCount * model.CircleRadius * 2 + model.DrawOffset * 2;
     float windowYSize = model.CirclesYCount * model.CircleRadius * 2 + model.DrawOffset * 2;
+   
 
-    RenderWindow window(VideoMode(windowXSize + 500, windowYSize + 400), "SFML Lab", Style::Default, settings);
+    RenderWindow window(VideoMode(windowXSize + 200, windowYSize + 400), "SFML Lab", Style::Default, settings);
 
     model.SetCircleColor();
 
@@ -32,12 +33,9 @@ int main()
 
         model.DrawCircleGrid(window);
 
-        if (timer > 100.0f)
-        {
-            timer = 0;
             model.DrawCircles(window, time);
-            model.DrawGrafic(window);
-        }
+            model.DrawGrafic(window,time);
+
 
         if (Keyboard::isKeyPressed(Keyboard::C))
         {
@@ -69,7 +67,9 @@ void Model::SetCircleColor()
 void Model::DrawCircles(RenderWindow& win, float time)
 {
     Math math;
-
+    timer += time;
+    if (timer < time1) return;
+    timer = 0;
     for (int i = 0; i < CirclesYCount; i++)
     {
         int x = VacancyArray[i].first;
@@ -188,11 +188,15 @@ bool Math::RandBool()
 
 void Model::SetVars() {}
 
-void Model::DrawGrafic(RenderWindow& win)
+void Model::DrawGrafic(RenderWindow& win, float time)
 {
 
-    VertexArray graficVertex(LineStrip, 25);
-    VertexArray graficVertexB(LineStrip, 25);
+    timerG += time;
+    if (timerG < time2) return;
+    timerG = 0; 
+    Math math;
+    VertexArray graficVertex(LineStrip, 40);
+    VertexArray graficVertexB(LineStrip, 40);
 
     int yPoint = CirclesYCount * CircleRadius * 2 + DrawOffset * 2 + CirclesYCount * CircleRadius;
     int xPoint = DrawOffset;
@@ -237,12 +241,9 @@ void Model::DrawGrafic(RenderWindow& win)
         graficVertex[x].color = clFirstAtom;
         graficVertexB[x].color = clSecondAtom;
 
-
-        cout << "1atom   " << count1Atom / CirclesYCount << "  vy " << vy << endl;
     };
 
     win.draw(graficVertex);
     win.draw(graficVertexB);
     win.display();
-
 }

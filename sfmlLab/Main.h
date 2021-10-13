@@ -13,13 +13,19 @@ using namespace std;
 const class Model
 {
 public:
-    const int CirclesXCount = 25;
-    const int CirclesYCount = 25;
+    const int CirclesXCount = 40;
+    const int CirclesYCount = 40;
     float timer = 0;
-    int CirclesArray[25][25];
+    float timerG = 0;
 
 
-    pair<int, int> VacancyArray[25];
+    float time1 = 30.0f;
+    float time2 = 300.0f;
+
+    int CirclesArray[40][40];
+
+
+    pair<int, int> VacancyArray[40];
     CircleShape FirstAtom;
     CircleShape SecondAtom;
     CircleShape Vacancy;
@@ -29,7 +35,7 @@ public:
     Color clSecondAtom = Color(0, 255, 0);
     Color clVacancy = Color(255, 255, 255);
 
-    float CircleRadius = 8.0f;
+    float CircleRadius = 6.0f;
     float DrawOffset = 35.0f;
 
     int xCoords = 1;
@@ -47,7 +53,7 @@ public:
     public:
     RectangleShape GraficField;
     void SetVars();
-    void DrawGrafic(RenderWindow& win);
+    void DrawGrafic(RenderWindow& win,float time);
 
 };
 
