@@ -1,8 +1,25 @@
 
 #include "Main.h"
 
+class LineChart : VertexArray
+{
+public:
+    LineChart(int pPoints, pair<int, int> pLocation, pair<int, int> pSize, Color pColor = Color::Red);
+
+    void DrawSeries(vector<float>& pValsX, vector<float>& pValsY, RenderWindow& win, LineChart& instance);
+
+    void DrawBackground(Color color, float Offset, RenderWindow& win);
+
+private:
+    int Points = 0;
+    pair<int, int> Location;
+    pair<int, int> Size;
+    Color color = Color::Red;
+};
+
 int main()
 {
+
     Model model;
     Math math;
     ContextSettings settings;
@@ -10,42 +27,66 @@ int main()
     int scale = 300;
     float windowXSize = model.CirclesXCount * model.CircleRadius * 2 + model.DrawOffset * 2;
     float windowYSize = model.CirclesYCount * model.CircleRadius * 2 + model.DrawOffset * 2;
-   
+    model.CalculateSize();
+    LineChart Chart1(model.CirclesXCount, model.GraficLoc, model.GraficSize);
+    LineChart Chart2(model.CirclesXCount, model.GraficLoc, model.GraficSize, model.clSecondAtom);
 
     RenderWindow window(VideoMode(windowXSize + 200, windowYSize + 400), "SFML Lab", Style::Default, settings);
 
+    // window.setFramerateLimit(600);
     model.SetCircleColor();
 
     sf::Event event;
     Clock clock;
-    float timer = 0.0f;
+    float time = 0.0f;
+    float DeltaTime = 0.0f;
+    float LastTime = 0.0f;
+    float FPSTimer = 0.0f;
+
+    model.DrawCircleGrid(window);
 
     while (window.isOpen())
     {
-        float time = clock.getElapsedTime().asMicroseconds();
-        clock.restart();
-        time = time / 800;
-        timer += time;
+        time = clock.getElapsedTime().asSeconds();
+        DeltaTime = time - LastTime;
+        LastTime = time;
+
+        FPSTimer += DeltaTime;
+
+        cout << "timer: " << time << endl;
+        cout << "time: " << DeltaTime << endl;
+        cout << "truefps: " << 1 / DeltaTime << endl;
+        cout << "fps: " << 1 / FPSTimer << endl;
+
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed) window.close();
         }
 
-        model.DrawCircleGrid(window);
+        if (FPSTimer >= 0.025f)
+        {
+           // window.clear();
 
             model.DrawCircles(window, time);
-            model.DrawGrafic(window,time);
+            model.CalculateAtoms();
+            Chart1.DrawBackground(Color(20, 20, 20), 20, window);
+            Chart1.DrawSeries(model.ValsX, model.ValsY1, window, Chart1);
+            Chart2.DrawSeries(model.ValsX, model.ValsY2, window, Chart2);
 
+            FPSTimer = 0.0f;
+        }
 
         if (Keyboard::isKeyPressed(Keyboard::C))
         {
-            model.ClearGrid(window);
+
+             model.ClearGrid(window);
         }
 
         if (Keyboard::isKeyPressed(Keyboard::Escape))
         {
             window.close();
         }
+        window.display();
     }
 
     return 0;
@@ -67,9 +108,6 @@ void Model::SetCircleColor()
 void Model::DrawCircles(RenderWindow& win, float time)
 {
     Math math;
-    timer += time;
-    if (timer < time1) return;
-    timer = 0;
     for (int i = 0; i < CirclesYCount; i++)
     {
         int x = VacancyArray[i].first;
@@ -133,6 +171,7 @@ void Model::DrawCircleGrid(RenderWindow& win)
             }
             if (i == CirclesXCount / 2)
             {
+
                 Vacancy.setPosition(localX * i + DrawOffset, localY * j + DrawOffset);
                 win.draw(Vacancy);
                 win.display();
@@ -186,35 +225,15 @@ bool Math::RandBool()
         return false;
 }
 
-void Model::SetVars() {}
-
-void Model::DrawGrafic(RenderWindow& win, float time)
+void Model::CalculateAtoms()
 {
-
-    timerG += time;
-    if (timerG < time2) return;
-    timerG = 0; 
-    Math math;
-    VertexArray graficVertex(LineStrip, 40);
-    VertexArray graficVertexB(LineStrip, 40);
-
-    int yPoint = CirclesYCount * CircleRadius * 2 + DrawOffset * 2 + CirclesYCount * CircleRadius;
-    int xPoint = DrawOffset;
-
-    int width = CirclesXCount * CircleRadius * 2;
-    int heigth = CirclesYCount * CircleRadius;
-
-    GraficField.setFillColor(Color::Black);
-    GraficField.setPosition(xPoint - 5, yPoint - CirclesYCount * CircleRadius - 5);
-    Vector2f GraficSize(width + 5, 30 + heigth);
-    GraficField.setSize(GraficSize);
-    win.draw(GraficField);
-    win.display();
-
-    int GraficStepSize = CircleRadius * 2;
+    ValsX.clear();
+    ValsY1.clear();
+    ValsY2.clear();
 
     for (int x = 0; x < CirclesXCount; x++)
     {
+        ValsX.push_back(x);
         int count1Atom = 0;
         int count2Atom = 0;
 
@@ -224,26 +243,71 @@ void Model::DrawGrafic(RenderWindow& win, float time)
             if (CirclesArray[x][y] == 2) count2Atom++;
         };
 
-        Vector2f vector;
-        Vector2f vectorB;
+        ValsY1.push_back(count1Atom);
+        ValsY2.push_back(count2Atom);
+    }
+}
 
-        int vx = x * GraficStepSize + xPoint;
-        int vy = yPoint - (count1Atom * heigth / CirclesYCount);
+void Model::CalculateSize()
+{
+    GraficLoc.second = CirclesYCount * CircleRadius * 2 + DrawOffset * 2 + CirclesYCount * CircleRadius;
+    GraficLoc.first = DrawOffset;
 
-        int vxB = x * GraficStepSize + xPoint;
-        int vyB = yPoint - (count2Atom * heigth / CirclesYCount);
+    GraficSize.first = CirclesXCount * CircleRadius * 2;
+    GraficSize.second = CirclesYCount * CircleRadius;
+}
 
-        vector = Vector2f(vx, vy);
-        vectorB = Vector2f(vxB, vyB);
-        graficVertex[x].position = vector;
-        graficVertexB[x].position = vectorB;
 
-        graficVertex[x].color = clFirstAtom;
-        graficVertexB[x].color = clSecondAtom;
+LineChart::LineChart(int pPoints, pair<int, int> pLocation, pair<int, int> pSize, Color pColor)
+{
+    Points = pPoints;
+    Location = pLocation;
+    Size = pSize;
+    color = pColor;
 
+    VertexArray::setPrimitiveType(PrimitiveType::LinesStrip);
+    VertexArray::resize(pPoints);
+}
+
+void LineChart::DrawSeries(vector<float>& pValsX, vector<float>& pValsY, RenderWindow& win, LineChart& instance)
+{
+    Vector2f vector;
+
+    for (int x = 0; x < Points; x++)
+    {
+        float a = Size.first / Points * pValsX[x] + Location.first;
+        float b = Location.second - (pValsY[x] * Size.second / Points);
+
+        vector = Vector2f(a, b);
+        instance[x].position = vector;
+        instance[x].color = color;
+        /*
+                cout << "x: " << x << endl;
+        cout << "a: " << a << endl;
+        cout << "b: " << b << endl;
+        cout << "Points: " << Points << endl;
+        cout << "Size.first: " << Size.first << endl;
+        cout << "Size.second: " << Size.second << endl;
+        cout << "Location.first: " << Location.first << endl;
+        cout << "Location.second: " << Location.second << endl;
+        */
     };
 
-    win.draw(graficVertex);
-    win.draw(graficVertexB);
-    win.display();
+    win.draw(instance);
+}
+
+void LineChart::DrawBackground(Color color, float Offset, RenderWindow& win)
+{
+    RectangleShape GraficField;
+    float x = Location.first - Offset / 2;
+    float y = Location.second - Size.second - Offset / 2;
+
+    Vector2f vector = Vector2f(x, y);
+
+    GraficField.setFillColor(color);
+    GraficField.setPosition(vector);
+    Vector2f GraficSize(Size.first + Offset / 2, Size.second + Offset);
+    GraficField.setSize(GraficSize);
+
+    win.draw(GraficField);
 }

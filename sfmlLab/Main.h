@@ -8,24 +8,25 @@
 using namespace sf;
 using namespace std;
 
-
-
 const class Model
 {
 public:
-    const int CirclesXCount = 40;
-    const int CirclesYCount = 40;
+    const int CirclesXCount = 35;
+    const int CirclesYCount = 35;
     float timer = 0;
     float timerG = 0;
-
 
     float time1 = 30.0f;
     float time2 = 300.0f;
 
-    int CirclesArray[40][40];
+    int CirclesArray[35][35];
+
+    vector<float> ValsX;
+    vector<float> ValsY1;
+    vector<float> ValsY2;
 
 
-    pair<int, int> VacancyArray[40];
+    pair<int, int> VacancyArray[35];
     CircleShape FirstAtom;
     CircleShape SecondAtom;
     CircleShape Vacancy;
@@ -50,11 +51,15 @@ public:
     void ClearGrid(RenderWindow& win);
     void DrawCircleColor(RenderWindow& win, int x, int y, int num);
 
-    public:
-    RectangleShape GraficField;
-    void SetVars();
-    void DrawGrafic(RenderWindow& win,float time);
+    void CalculateAtoms();
+    void CalculateSize();
 
+    pair<int, int> GraficSize;
+    pair<int, int> GraficLoc;
+
+    RectangleShape GraficField;
+    // void SetVars();
+    //  void DrawGrafic(RenderWindow& win,float time);
 };
 
 const class Math
@@ -62,3 +67,4 @@ const class Math
 public:
     bool RandBool();
 };
+
